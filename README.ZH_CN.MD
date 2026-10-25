@@ -1,148 +1,89 @@
+# LAN Laser Pen · 局域网激光笔
+
 [English](./README.MD)
 
-想进一步了解设计思路相关信息，可以阅读 [Instruction](docs/Instruction.zh-cn.md) 文档。
+**让手机通过局域网，控制 Windows 演示画面上的激光红点。**
 
-想了解远程控制相关的内容，请阅读 [Remote Control](docs/RemoteControl.zh-cn.md) 文档。
+电脑生成二维码，手机扫码后拖动触控区，红点就能叠加在幻灯片上。浏览器允许访问传感器时，还可以使用陀螺仪控制。激光笔本身无需云服务、账号或付费。
 
-# 简介
+![手机通过局域网控制 Windows 演示的连接示意](./docs/assets/overview.svg)
 
-Laser Pen 是一套用来在 web canvas 上绘制鼠标轨迹的工具集。
+## 功能
 
-![demo](./docs/assets/demo.gif)
+- **手机触控：**大触控区采用绝对位置映射，带横竖中位线和本地位置标记。
+- **Windows 透明叠加：**置顶、点击穿透，尽量保持当前演示窗口的焦点。
+- **渐隐轨迹：**红点划过后留下约 500 毫秒的短暂轨迹。
+- **可选传感器控制：**兼容检测方向事件、相对姿态和重力倾斜备用，提供归零、灵敏度、方向反转与一阶低通滤波；是否可用取决于浏览器与系统权限。
+- **上下翻页：**向 Windows 当前前台应用发送左右方向键；使用时让 Canva 或其他演示窗口保持前台。
+- **局域网配对：**电脑二维码、本地 HTTPS/WSS、断线重连，每个会话由一部手机控制。
 
-众所周知，产品经理的需求往往千奇百怪天马行空，所以 Laser Pen 并不仅仅是提供一个绘制鼠标轨迹的方法，同时也将内部的各种工具方法暴露出来，方便开发同学能在此工具集的基础上实现各种特殊需求，减少脱发。
+<img src="./docs/assets/mobile-control.png" alt="带中位线、位置标记和翻页按钮的手机触控界面" width="360">
 
-# 示例
+## 快速开始
 
-## [在线演示](https://silenttiger.github.io/laser-pen/)
+准备一台 **Windows 电脑**、Git、**Node.js 22 或更新版本**，以及连接同一局域网的手机。安装依赖和首次下载 mkcert 需要联网；启动器使用 Windows PowerShell，跨应用透明叠加仅提供 Windows 实现。
 
-# 如何使用
-
-### 初步上手
-
-首先在你的项目中添加对 Laser Pen 的依赖：
-
-```shell
-yarn add laser-pen
+```powershell
+git clone https://github.com/fuxing0910-hue/lan-laser-pen.git
+Set-Location lan-laser-pen
+npm ci
+powershell -NoProfile -STA -ExecutionPolicy Bypass -File .\scripts\launch.ps1 -Action Start
 ```
 
-或者
+启动器会构建网页、按需准备本地 HTTPS 证书、启动服务与透明层，并打开电脑二维码页。首次可能弹出 Windows 本地 CA 信任确认。若防火墙询问网络访问，请为可信的专用局域网放行；手机连不上时可按详细指南检查防火墙。
 
-```shell
-npm i laser-pen
+**手机第一次需要安装并信任证书：**
+
+1. 将生成的 **`certs/rootCA.cer`** 复制到手机，安装并信任为 CA 证书。只传这个公开文件，所有私钥留在电脑上。
+2. 如果在 **iOS 上使用 Safari**，安装证书描述文件后，还需要进入 **设置 → 通用 → 关于本机 → 证书信任设置**，为这个 CA 开启完全信任。参见 [Apple 官方说明](https://support.apple.com/en-us/102390)。
+3. 重新打开手机浏览器，扫描电脑二维码，确认 HTTPS 页面没有证书警告。电脑有多个网卡时，在二维码页选择手机能够访问的局域网地址。
+4. 直接拖动触控区即可控制红点，无需启用传感器。想试陀螺仪时，再点击启用或授权按钮，允许出现的权限请求，然后校准归零。
+
+这需要本地安装与首次证书配置。不同系统版本的证书菜单和传感器权限可能不同。完整安装、端口放行与故障排查见 [详细安装指南](./README.LOCAL.zh-CN.md)。
+
+停止服务与透明层：
+
+```powershell
+powershell -NoProfile -STA -ExecutionPolicy Bypass -File .\scripts\launch.ps1 -Action Stop
 ```
 
-然后监听鼠标的 move 事件，获取鼠标移动轨迹的坐标，并同时记录 move 事件触发时的时间戳。
+`Ctrl+Alt+Q` 只退出透明层。仓库还提供 `Start-LaserPen.vbs` 和 `Stop-LaserPen.vbs`，可在启用 VBScript 的 Windows 上双击使用；上面的 PowerShell 命令不依赖这些入口。
 
-```javascript
-// 获取 canvas 元素的坐标
-const canvasDom = document.querySelector('canvas')
-const canvasPos = canvasDom.getBoundingClientRect()
-const ctx = canvas.getContext('2d')
-// 用来存储所有鼠标轨迹数据
-let mouseTrack = []
-// 监听鼠标事件
-document.addEventListener('mousemove', (event) => {
-  mouseTrack.push({
-    x: event.clientX - canvasPos.x,
-    y: event.clientY - canvasPos.y,
-    time: Date.now(),
-  })
-})
+## 兼容情况：目前掌握的证据
+
+| 手机 / 浏览器 | 当前情况 | 验证范围 |
+| --- | --- | --- |
+| iPhone | 用户反馈可用。 | 未提供具体型号、iOS 或浏览器版本，不能当作 Safari 的专项实测结果。 |
+| 华为 Mate X5 / 自带华为浏览器 | 用户反馈陀螺仪控制可用。 | 未提供准确系统与浏览器版本。 |
+| 华为 Pura X，VDE-AL10 / 华为浏览器 | 触控可用；传感器访问返回 `NotAllowedError`。 | 该环境下尚未确认陀螺仪可用。 |
+| 其他手机浏览器 | 触控面向支持 Pointer Events 且使用可信 HTTPS 的浏览器；传感器按能力检测。 | 尚未对所有机型与浏览器组合进行真机测试。 |
+
+**跨应用透明叠加仅支持 Windows。** 其他桌面系统没有随项目提供的跨应用透明层或此 Windows 启动器，普通浏览器预览也不具备该叠加能力。
+
+浏览器拒绝所有传感器来源时，网页无法绕过它的权限决定；此时仍可使用触控区控制激光点。
+
+## 局域网运行与隐私
+
+运行时，指针位置和翻页指令通过本地 WSS 在手机与电脑间传输，不使用外部中转、统计服务、登录或支付流程。Canva 等演示软件自身的联网需求独立于本项目。
+
+传感器诊断包含权限状态、事件计数、最近读数及有限的浏览器版本摘要。服务端仅将最新快照保存在内存中，自最后一次报告起最多保留 **10 分钟**，手机断开后也可查看；接受新的手机连接时清空旧快照。诊断不写入数据库，也不上传云端；启动器和进程日志保存在本地 `.tools/`。
+
+请勿在公开 issue 中上传 `certs/`、`.tools/`、私钥或未脱敏的本地诊断。
+
+## 参与改进
+
+欢迎提交问题、浏览器兼容反馈及小范围 PR。报告传感器问题时，请提供手机型号、系统与浏览器版本、页面显示的权限和事件状态，并移除私网信息与证书材料。
+
+开发检查使用 OpenSSL 自动生成隔离的临时证书，无需预先安装系统证书信任：
+
+```powershell
+npm test
+npm run lint
+npm run build:demo
 ```
 
-最后在调用 drawLaserPen 方法绘制鼠标轨迹
+如果它帮到了你的演示，欢迎自愿点个 Star。
 
-```javascript
-import { drainPoints, drawLaserPen } from 'laser-pen'
+## 许可与上游来源
 
-function draw() {
-  // 过滤掉一些失效的轨迹坐标
-  mouseTrack = drainPoints(mouseTrack)
-  if (mouseTrack.length >= 3) {
-    // 绘制鼠标轨迹
-    drawLaserPen(ctx, mouseTrack)
-  }
-  requestAnimation(draw)
-}
-```
-
-到这里，你应该已经可以在 canvas 上实现鼠标轨迹的绘制了。
-
-### 参数配置
-
-如果默认的轨迹效果不能满足你的要求，Laser Pen 还提供了一些接口让你可以方便的修改鼠标轨迹的样式。
-
-```typescript
-// 设置延迟时间，mousemove 事件产生的坐标点在超过延迟时间后就不会被绘制，会直接影响轨迹的长度
-setDelay: (millisecond: number) => void;
-// 设置轨迹的最大宽度，轨迹是一条由粗变细的曲线，maxWidth 表示粗的那一头的线宽
-setMaxWidth: (width: number) => void;
-// 设置轨迹的最小宽度，轨迹是一条由粗变细的曲线，minWidth 表示细的那一头的线宽
-setMinWidth: (width: number) => void;
-// 设置曲线张力大小，张力越大拐点处越平滑，反之越尖锐
-setTension: (t: number) => void;
-// 设置轨迹的最小透明度，轨迹是一条由不透明变透明的曲线，opacity 表示轨迹末尾的不透明度
-setOpacity: (o: number) => void;
-// 设置轨迹的颜色
-setColor: (r: number, g: number, b: number) => void;
-// 设置轨迹头部是否是圆形
-setRoundCap: (b: boolean) => void;
-```
-
-在任何时候调用上述接口修改鼠标轨迹的样式，都会在紧接着的下一次绘制中生效。所以如果你想实现一个类似 RGB 跑马灯的鼠标轨迹也是可以的。
-
-### 定制化开发
-
-如果上面的接口都不能满足你的要求，那么你就需要做一些定制化的开发了。
-
-绘制鼠标轨迹的过程大概分为 5 个步骤：
-
-1. 清洗轨迹坐标数据
-2. 根据轨迹坐标计算每个坐标的控制点
-3. 通过坐标点和控制点数据生成 Bezier 曲线
-4. 将上一步生成的曲线分割为更短的 Bezier 曲线，并计算每条曲线的绘制样式
-5. 依次绘制每条 Bezier 曲线
-
-这 5 个步骤对应下面的第 1 到第 5 个接口，最后的 `drawLaserPen` 接口是对前面 5 个接口的组合。
-如果直接调用 `drawLaserPen` 不能满足你的要求，你可以在前 5 个接口的基础上自行组合，实现你想要的效果。
-
-```typescript
-// 去掉原始鼠标坐标数据中不合理的数据，包括超过延迟时间的坐标，和一些排列不合法的坐标
-drainPoints: (originalPoints: IOriginalPointData[]) => IOriginalPointData[];
-// 根据鼠标坐标数据计算每个坐标点的前后控制点
-calControlPoints: (points: IPoint[]) => IControlPoint[];
-// 将鼠标坐标数据和控制点数据组合为贝塞尔曲线
-transformPointToBezier: (
-  points: IPoint[],
-  controlPoints: IControlPoint[]
-) => Bezier[];
-// 根据原始的贝塞尔曲线数据，计算出用于绘制的数据结构
-calDrawingData: (
-  bzArray: Bezier[],
-  totalLength: number
-) => IDrawingBezierData[];
-// 根据计算出的绘制数据，将曲线绘制到画布上
-drawDrawingBezierData: (
-  ctx: CanvasRenderingContext2D,
-  data: IDrawingBezierData[]
-) => void;
-// 一个方便简单使用的入口方法，直接通过处理好的鼠标坐标数据，绘制鼠标轨迹
-drawLaserPen: (ctx: CanvasRenderingContext2D, points: IPoint[]) => void;
-```
-
-# 性能
-
-![flame chart](./docs/assets/performance_1.png)
-
-从上面的火焰图可以看出，持续绘制鼠标轨迹的性能还是比较不错的，帧率始终都位置在 60fps 左右。
-
-![flame chart](./docs/assets/performance_2.png)
-
-每一次绘制的时间也基本上不到 0.5ms。
-
-根据个人以往的经验，类似 Laser Pen 这样完全不依赖 DOM 和 BOM 的 JavaScript 库往往都有着不错的性能表现。JavaScript 在简单的纯数学和逻辑处理上效率还是很高的。
-
-# License
-
-MIT
+[MIT 许可](./LICENSE)。基于 [SilentTiger/laser-pen 的 `9694f27` 提交](https://github.com/SilentTiger/laser-pen/tree/9694f27b846cd1baff527be2f9d14fdf86234854) 改造，保留其 canvas 绘图核心与原始版权声明，新增局域网控制及 Windows 透明叠加。

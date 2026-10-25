@@ -1,0 +1,32 @@
+name: Bug report / 问题反馈
+description: Report a reproducible problem with pairing, touch, overlay, or slide controls.
+title: "[Bug] "
+body:
+  - type: markdown
+    attributes:
+      value: "Please remove pairing URLs, IP addresses, Wi-Fi names, and personal details. Never upload certificates or private keys. / 请先脱敏，勿上传证书或私钥。"
+  - type: input
+    id: version
+    attributes:
+      label: Release or commit / 版本
+      placeholder: v0.1.0
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment / 环境
+      description: Windows version, phone model, OS version and browser version.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps, expected result and actual result / 复现步骤与结果
+    validations:
+      required: true
+  - type: textarea
+    id: checks
+    attributes:
+      label: Relevant diagnostics / 相关诊断
+      description: Touch works? Secure context? Connection status? Sanitized error text only.

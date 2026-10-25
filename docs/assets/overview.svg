@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1280" height="680" viewBox="0 0 1280 680" role="img" aria-labelledby="title desc">
+  <title id="title">LAN Laser Pen — your phone becomes a presentation pointer</title>
+  <desc id="desc">Illustration of a phone touchpad sending local WebSocket positions to a transparent Windows pointer overlay above presentation slides.</desc>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1"><stop stop-color="#f7f8ff"/><stop offset="1" stop-color="#e9eefb"/></linearGradient>
+    <linearGradient id="slide" x2="1" y2="1"><stop stop-color="#182547"/><stop offset="1" stop-color="#10182c"/></linearGradient>
+    <linearGradient id="trail"><stop stop-color="#ff485d" stop-opacity="0"/><stop offset="1" stop-color="#ff485d"/></linearGradient>
+  </defs>
+  <rect width="1280" height="680" rx="28" fill="url(#bg)"/>
+  <g font-family="Segoe UI,Arial,sans-serif">
+    <rect x="48" y="43" width="10" height="52" rx="5" fill="#ef4056"/>
+    <text x="77" y="81" font-size="43" font-weight="750" fill="#14213c">LAN Laser Pen</text>
+    <text x="50" y="126" font-size="22" fill="#5b6880">Your phone. Your slides. Your local network.</text>
+    <g fill="#fff" stroke="#d9e0f0"><rect x="833" y="51" width="176" height="38" rx="19"/><rect x="1020" y="51" width="209" height="38" rx="19"/></g>
+    <g font-size="15" fill="#3b4a64" text-anchor="middle"><text x="921" y="76">No cloud · No login</text><text x="1124" y="76">Free · MIT open source</text></g>
+    <g transform="translate(70 173)">
+      <rect x="5" y="7" width="246" height="425" rx="35" fill="#d5dded"/>
+      <rect width="246" height="425" rx="35" fill="#1d2940"/>
+      <rect x="10" y="10" width="226" height="405" rx="27" fill="#f5f7ff"/>
+      <rect x="85" y="17" width="76" height="9" rx="4.5" fill="#1d2940"/>
+      <text x="25" y="60" font-size="18" font-weight="700" fill="#1c2d48">Phone touchpad</text>
+      <circle cx="29" cy="83" r="4" fill="#29916e"/><text x="40" y="87" font-size="12" fill="#287e63">Connected on your LAN</text>
+      <rect x="24" y="107" width="198" height="236" rx="15" fill="#edf2fc" stroke="#cbd7ee" stroke-width="2"/>
+      <g stroke="#dce4f3"><path d="M73.5 108v234M172.5 108v234M25 166h196M25 284h196"/></g>
+      <g stroke="#a9bad9" stroke-width="2"><path d="M123 108v234M25 225h196"/></g>
+      <circle cx="123" cy="225" r="5" fill="#edf2fc" stroke="#a9bad9" stroke-width="2"/>
+      <circle cx="172" cy="166" r="16" fill="#ff485d" fill-opacity=".08" stroke="#ff8e9d" stroke-width="2"/>
+      <circle cx="172" cy="166" r="4" fill="#f34a61"/>
+      <rect x="24" y="356" width="94" height="33" rx="9" fill="#fff" stroke="#d7dfef"/>
+      <rect x="128" y="356" width="94" height="33" rx="9" fill="#fff" stroke="#d7dfef"/>
+      <text x="71" y="377" text-anchor="middle" font-size="13" fill="#324460">← Previous</text>
+      <text x="175" y="377" text-anchor="middle" font-size="13" fill="#324460">Next →</text>
+    </g>
+    <path d="M343 358h124" stroke="#899bbc" stroke-width="2" stroke-dasharray="6 7"/>
+    <path d="m458 351 10 7-10 7" fill="none" stroke="#899bbc" stroke-width="2"/>
+    <text x="403" y="328" text-anchor="middle" font-size="16" font-weight="700" fill="#425675">Local WSS</text>
+    <text x="403" y="390" text-anchor="middle" font-size="13" fill="#6c7a91">Same Wi-Fi</text>
+    <g transform="translate(492 188)">
+      <rect x="7" y="10" width="710" height="385" rx="18" fill="#ccd6e8"/>
+      <rect width="710" height="385" rx="18" fill="#263651"/>
+      <rect x="12" y="12" width="686" height="356" rx="9" fill="url(#slide)"/>
+      <rect x="44" y="45" width="88" height="21" rx="10.5" fill="#314869"/>
+      <text x="88" y="60" text-anchor="middle" font-size="10" font-weight="700" letter-spacing="1" fill="#e0e9fc">YOUR SLIDES</text>
+      <text x="44" y="117" font-size="31" font-weight="700" fill="#f5f7fc">Present, naturally.</text>
+      <text x="44" y="148" font-size="16" fill="#aebeda">A red pointer above your presentation.</text>
+      <g fill="#536d96"><rect x="45" y="201" width="207" height="8" rx="4"/><rect x="45" y="226" width="167" height="8" rx="4"/><rect x="45" y="251" width="185" height="8" rx="4"/></g>
+      <g fill="#314b72"><rect x="363" y="237" width="40" height="63" rx="5"/><rect x="423" y="197" width="40" height="103" rx="5"/><rect x="483" y="157" width="40" height="143" rx="5"/><rect x="543" y="121" width="40" height="179" rx="5"/></g>
+      <path d="M400 169c36 29 57 17 80-15s25-48 47-53" fill="none" stroke="url(#trail)" stroke-width="7" stroke-linecap="round"/>
+      <circle cx="527" cy="101" r="20" fill="#ff4059" fill-opacity=".1"/><circle cx="527" cy="101" r="11" fill="#ff4059" fill-opacity=".22"/><circle cx="527" cy="101" r="6" fill="#ff4059"/>
+      <rect x="250" y="385" width="210" height="15" rx="5" fill="#8699b7"/>
+      <rect x="195" y="399" width="320" height="8" rx="4" fill="#b0bfd6"/>
+    </g>
+    <text x="846" y="627" text-anchor="middle" font-size="17" fill="#334d71">Transparent · Always on top · Click through</text>
+    <text x="50" y="656" font-size="12" fill="#718099">Illustration. Motion control depends on browser permissions; the cross-application overlay is Windows only.</text>
+  </g>
+</svg>

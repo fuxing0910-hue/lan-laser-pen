@@ -1,180 +1,44 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
   <meta charset="utf-8">
-  <meta content="ie=edge" http-equiv="x-ua-compatible">
-  <meta build-time="构建于：<%= htmlWebpackPlugin.options.buildTime %>">
-  <link rel="shortcut icon" href="#" />
-  <title>Laser Pen Demo</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>局域网 Laser Pen</title>
   <style>
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      box-sizing: border-box;
-      min-width: 640px;
-      overflow: overlay;
-      display: flex;
-      flex-direction: column;
-    }
-
-    header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px;
-      height: 134px;
-      overflow: hidden;
-      flex-shrink: 0;
-    }
-
-    header>a {
-      color: #000;
-      text-decoration: none;
-    }
-
-    header>div {
-      display: flex;
-      align-items: center;
-    }
-
-    h1 {
-      font-size: 72px;
-      font-style: italic;
-    }
-
-    #tool-box {
-      display: flex;
-    }
-
-    #tool-box>div>div {
-      display: flex;
-      align-items: center;
-      margin-left: 10px;
-    }
-
-    #colorBox {
-      height: 22px;
-    }
-
-    #cvs {
-      margin: 8px;
-      width: calc(100% - 16px);
-      background-color: rgba(0, 0, 0, 0.1);
-      height: 300px;
-      min-height: 100px;
-      flex-grow: 1;
-      flex-shrink: 1;
-    }
-
-    #btnReset {
-      display: none;
-      position: absolute;
-      top: 0;
-      right: 0;
-      bottom: 0;
-      left: 0;
-      width: 100%;
-      font-size: 72px;
-    }
-
-    #connection-panel {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-
-    #qr-code {
-      display: none;
-      width: 80px;
-      height: 80px;
-      background-size: contain;
-      background-repeat: no-repeat;
-    }
-
-    #btnCopyUrl {
-      display: none;
-      margin-top: 5px;
-    }
-
-    #client-url {
-      display: none;
-    }
+    html, body { margin: 0; width: 100%; height: 100%; background: transparent; font: 15px system-ui, sans-serif; }
+    body { display: flex; flex-direction: column; color: #17232e; }
+    header { background: #f5f7fa; padding: 20px 24px; display: flex; align-items: center; gap: 24px; }
+    h1 { margin: 0 0 10px; font-size: 26px; }
+    p { margin: 8px 0; line-height: 1.6; }
+    #qr-code { width: 210px; height: 210px; background: white; }
+    #client-url { display: block; overflow-wrap: anywhere; margin: 10px 0; }
+    button, select { font: inherit; padding: 6px 12px; }
+    #cvs { display: block; width: 100%; min-height: 120px; flex: 1; background: transparent; }
+    #status { color: #126047; }
+    #sensorDetails { white-space: pre-wrap; font: 13px/1.5 system-ui, sans-serif; }
+    code { background: #e5eaf0; padding: 2px 5px; }
+    @media(max-width: 650px) { header { flex-wrap: wrap; } }
   </style>
-  <script src="simplepeer.min.js"></script>
 </head>
-
 <body>
   <header>
-    <a target="Laser Pen" href="https://github.com/SilentTiger/laser-pen">
-      <h1>Laser Pen</h1>
-    </a>
+    <img id="qr-code" alt="手机连接二维码">
     <div>
-      <div id="connection-panel">
-        <div id="qr-code" title="Scan the qrcode using your phone to open the url of Remote Controller."></div>
-        <button id="btnCopyUrl" title="Copy the url of Remote Controller.">Copy URL</button>
-      </div>
-      <div id="tool-box">
-        <div>
-          <div>
-            <label for="rangeDelay">Delay:</label>
-            <input type="range" id="rangeDelay" name="volume" min="0.1" max="1" step="0.1" value="0.3">
-            <span id="rangeDelayValue"></span>s
-          </div>
-          <div>
-            <label for="rangeMaxWidth">Max Width:</label>
-            <input type="range" id="rangeMaxWidth" name="volume" min="3" max="30" step="1" value="10">
-            <span id="rangeMaxWidthValue"></span>px
-          </div>
-          <div>
-            <label for="rangeMinWidth">Min Width:</label>
-            <input type="range" id="rangeMinWidth" name="volume" min="0" max="5" step="1" value="0">
-            <span id="rangeMinWidthValue"></span>px
-          </div>
-          <div>
-            <label for="rangeTension">Tension:</label>
-            <input type="range" id="rangeTension" name="volume" min="0.1" max="0.5" step="0.01" value="0.3">
-            <span id="rangeTensionValue"></span>
-          </div>
-          <div>
-            <label for="rangeOpacity">Opacity:</label>
-            <input type="range" id="rangeOpacity" name="volume" min="0" max="1" step="0.01" value="0">
-            <span id="rangeOpacityValue"></span>
-          </div>
-        </div>
-        <div>
-          <div id="colorBox"></div>
-          <div>
-            <label for="rangeColorRed">Red:</label>
-            <input type="range" id="rangeColorRed" name="volume" min="0" max="255" step="1" value="255">
-            <span id="rangeColorRed"></span>
-          </div>
-          <div>
-            <label for="rangeColorGreen">Green:</label>
-            <input type="range" id="rangeColorGreen" name="volume" min="0" max="255" step="1" value="0">
-            <span id="rangeColorGreen"></span>
-          </div>
-          <div>
-            <label for="rangeColorBlue">Blue:</label>
-            <input type="range" id="rangeColorBlue" name="volume" min="0" max="255" step="1" value="0">
-            <span id="rangeColorBlue"></span>
-          </div>
-          <div>
-            <label for="rangeRoundCap">Round Cap:</label>
-            <input type="checkbox" id="chkRoundCap">
-          </div>
-        </div>
-      </div>
+      <h1>局域网 Laser Pen</h1>
+      <p id="status">正在连接本机服务…</p>
+      <label>电脑局域网 IP <select id="addresses" aria-label="电脑局域网 IP"></select></label>
+      <a id="client-url"></a>
+      <button id="copy">复制手机地址</button>
+      <p>手机与电脑连接同一 Wi-Fi，先信任本机证书，再用系统浏览器扫码打开。</p>
+      <p>Canva 叠加：双击桌面的“启动激光笔”，再切换到 Canva 全屏播放。<br>结束演示：双击“停止激光笔”；仅隐藏激光层：<code>Ctrl + Alt + Q</code>。选择副屏见本地操作文档。</p>
+      <p>下方是激光预览。跨窗口透明置顶由 Windows 辅助窗口提供。</p>
+      <details>
+        <summary>手机传感器状态</summary>
+        <p id="sensorSummary">等待手机连接并报告传感器状态。</p>
+        <pre id="sensorDetails"></pre>
+      </details>
     </div>
   </header>
-  <canvas id="cvs" width="600" height="600"></canvas>
-  <button id="btnReset">Reset</button>
+  <canvas id="cvs"></canvas>
 </body>
-
 </html>

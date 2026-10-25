@@ -2,3 +2,17 @@
 /coverage/
 /types/
 /dist/
+/certs/
+/.tools/
+/local-laser.patch
+/.release/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cer
+*.crt
+*.pfx
+*.p12
+*.log

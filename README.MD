@@ -1,148 +1,89 @@
-[中文版](./README.ZH_CN.MD)
+# LAN Laser Pen
 
-For more instructions, please read [Instruction](docs/Instruction.md) .
+[简体中文](./README.ZH_CN.MD)
 
-To get some information about remote control, please read [Remote Control](docs/RemoteControl.md) .
+**Turn your phone into a presentation pointer for your Windows desktop, over your local network.**
 
-# Description
+Scan a QR code, drag the phone touchpad, and move a red laser dot above your slides. Motion control is available when the phone browser permits sensor access. The pointer itself needs no cloud service, account, or payment.
 
-Laser Pen is a tool set used to draw mouse trails on the web canvas.
+![How LAN Laser Pen connects a phone to a Windows presentation](./docs/assets/overview.svg)
 
-![demo](./docs/assets/demo.gif)
+## Features
 
-As we all know, the requirement from product managers are often wild and strange, so Laser Pen not only provides a method for drawing the mouse trails, but also exports various internal tools and methods, so that developers can achieve various special needs on the basis of this tool set.
+- **Phone touchpad:** a large absolute-position touch area with center guides and a local position marker.
+- **Windows overlay:** transparent, always on top, click through, and designed to preserve the foreground presentation's focus.
+- **A fading trail:** the red dot leaves a trail that fades over approximately 500 ms.
+- **Optional motion control:** orientation events, relative orientation, and a gravity tilt fallback, with calibration, sensitivity, axis reversal, and a first-order low-pass filter. Availability depends on browser and system permissions.
+- **Presentation controls:** previous/next buttons send left/right arrow keys to the foreground Windows application. Keep Canva or your presentation focused.
+- **Local pairing:** desktop QR code, HTTPS/WSS on the LAN, reconnection, and one phone controlling each session.
 
-# Demo
+<img src="./docs/assets/mobile-control.png" alt="Phone touchpad with center guides, position marker, and slide buttons" width="360">
 
-## [Online demo](https://silenttiger.github.io/laser-pen/)
+## Quick start
 
-# How to use
+You need a **Windows desktop**, Git, **Node.js 22 or newer**, and a phone on the same local network. Dependency installation and the first mkcert download require internet access. The launcher uses Windows PowerShell; the cross-application overlay is Windows only.
 
-### Start up
-
-First, add Laser Pen into your project dependencies:
-
-```shell
-yarn add laser-pen
+```powershell
+git clone https://github.com/fuxing0910-hue/lan-laser-pen.git
+Set-Location lan-laser-pen
+npm ci
+powershell -NoProfile -STA -ExecutionPolicy Bypass -File .\scripts\launch.ps1 -Action Start
 ```
 
-or
+The launcher builds the web pages, prepares local HTTPS certificates when needed, starts the server and overlay, and opens the desktop QR page. On first use, Windows may ask you to confirm trusting the generated local CA. Allow LAN access on your trusted private network if Windows Firewall prompts; see the detailed guide if the phone cannot connect.
 
-```shell
-npm i laser-pen
+**The phone needs a one-time certificate setup:**
+
+1. Copy the generated **`certs/rootCA.cer`** to the phone and install it as a trusted CA. Transfer only that public certificate; keep all private keys on the computer.
+2. If using **Safari on iOS**, installing the certificate profile alone does not enable SSL/TLS trust. After installation, open **Settings → General → About → Certificate Trust Settings** and enable full trust for this CA. See [Apple's instructions](https://support.apple.com/en-us/102390).
+3. Reopen the phone browser, scan the desktop QR code, and verify that the HTTPS page opens without a certificate warning. Select the correct LAN address on the desktop page if the computer has multiple network adapters.
+4. Drag the touchpad to use the laser dot. Touch control does not require enabling motion sensors. To try motion control, tap the enable/authorization buttons, allow any permission prompt, then calibrate.
+
+First use requires local installation and certificate setup. Phone certificate menus and sensor permissions vary by system version. Full setup, firewall options, and troubleshooting are in the [installation guide (Chinese)](./README.LOCAL.zh-CN.md).
+
+To stop the server and overlay:
+
+```powershell
+powershell -NoProfile -STA -ExecutionPolicy Bypass -File .\scripts\launch.ps1 -Action Stop
 ```
 
-Then, listen `mousemove` event to get the coordinates of the mouse trails, and record the timestamp.
+`Ctrl+Alt+Q` closes only the overlay. The repository also provides `Start-LaserPen.vbs` and `Stop-LaserPen.vbs` for double-click use on Windows with VBScript enabled; the PowerShell commands work independently of those entries.
 
-```javascript
-// get coordinate of canvas
-const canvasDom = document.querySelector('canvas')
-const canvasPos = canvasDom.getBoundingClientRect()
-const ctx = canvas.getContext('2d')
-// used to store the data of mouse trails
-let mouseTrack = []
-// listen mousemove event
-document.addEventListener('mousemove', (event) => {
-  mouseTrack.push({
-    x: event.clientX - canvasPos.x,
-    y: event.clientY - canvasPos.y,
-    time: Date.now(),
-  })
-})
+## Compatibility: current evidence
+
+| Phone / browser | Status | Limits of the evidence |
+| --- | --- | --- |
+| iPhone | A user reported it working. | Model, iOS version, and browser were not supplied; this is not a Safari-specific test result. |
+| Huawei Mate X5 / built-in Huawei Browser | A user reported motion control working. | Exact OS and browser versions were not supplied. |
+| Huawei Pura X, VDE-AL10 / Huawei Browser | Touch control works; motion access was blocked with `NotAllowedError`. | Motion control is not confirmed on this setup. |
+| Other phone browsers | Touch control targets browsers with Pointer Events and trusted HTTPS. Motion sources are feature detected. | Not every phone/browser combination has been tested on hardware. |
+
+The bundled **cross-application overlay is Windows only**. Other desktop operating systems do not have a bundled cross-application overlay or this Windows launcher. A browser preview does not provide that desktop overlay.
+
+If the browser denies access to every sensor, the web page cannot bypass that decision. Touch control remains a useful way to operate the pointer.
+
+## Local operation and privacy
+
+At runtime, pointer positions and slide commands travel between the phone and computer over local WSS. The project has no external relay, analytics service, login, or payment flow. Canva and other presentation apps have their own network requirements.
+
+Sensor diagnostics include permission states, event counts, recent readings, and a limited browser/version summary. The server keeps only the latest snapshot in memory for up to **10 minutes after the last report**, including after the phone disconnects, and clears it when a new phone connection is accepted. Diagnostics are not written to a database or uploaded to a cloud service. Launcher/process logs remain local under `.tools/`.
+
+Do not publish `certs/`, `.tools/`, private keys, or unredacted local diagnostics in an issue.
+
+## Contributing
+
+Bug reports, browser compatibility reports, and small pull requests are welcome. For sensor issues, include the phone model, OS/browser versions, and the page's permission/event status; remove private network details and certificate material.
+
+Development checks use OpenSSL and isolated temporary certificates; no OS certificate trust setup is needed:
+
+```powershell
+npm test
+npm run lint
+npm run build:demo
 ```
 
-At last, call `drawLaserPen` to draw mouse trails.
+If this helps your presentations, a star is welcome.
 
-```javascript
-import { drainPoints, drawLaserPen } from 'laser-pen'
+## License and upstream
 
-function draw() {
-  // filter out some invalid trajectory coordinates
-  mouseTrack = drainPoints(mouseTrack)
-  if (mouseTrack.length >= 3) {
-    // draw mouse trails
-    drawLaserPen(ctx, mouseTrack)
-  }
-  requestAnimation(draw)
-}
-```
-
-Now, you have draw mouse trails on canvas.
-
-### Configuration
-
-If the default configuration can not suite your requirement, you may need to use these interfaces to change the appearance of the drawing.
-
-```typescript
-// Set delay, the mouse trails point generated by the mousemove event will not be drawn after the delay time is exceeded, it will affect the length of the trajectory
-setDelay: (millisecond: number) => void;
-// Set the maximum width of the trajectory, trajectory is a curve from thick to thin, maxWidth represents the line width of the thick end
-setMaxWidth: (width: number) => void;
-// Set the minimum width of the trajectory, trajectory is a curve from thick to thin, minWidth represents the line width of the thin end
-setMinWidth: (width: number) => void;
-// Set the curve tension, the greater the tension, the smoother the inflection point, otherwise the sharper
-setTension: (t: number) => void;
-// Set the minimum transparency of the trajectory, trajectory is a curve that changes from opaque to transparent, it represents the opacity at the end of the track
-setOpacity: (o: number) => void;
-// Set the color of the trajectory
-setColor: (r: number, g: number, b: number) => void;
-// Set whether the trajectory head is round
-setRoundCap: (b: boolean) => void;
-```
-
-Calling the above interface at any time will take effect in the next drawing. So if you want to implement a mouse track similar to an RGB marquee, it is also possible.
-
-### Customize
-
-If the interfaces all of the above can not meet your requirements, then you need to do some customized development.
-
-The process of drawing the mouse track is roughly divided into 5 steps:
-
-1. filter out some invalid trajectory coordinates
-2. calculate control points from trajectory coordinates
-3. transform all the points to Bezier curve
-4. Split the curve generated in the previous step into shorter Bezier curves, and calculate the drawing style of each curve
-5. Draw each Bezier curve in turn
-
-These 5 steps correspond to the 1st to 5th interfaces below, and the last `drawLaserPen` interface is a combination of the previous 5 interfaces.
-If calling `drawLaserPen` directly cannot meet your requirements, you can combine them on the basis of the first 5 interfaces to achieve the effect you want.
-
-```typescript
-// Remove the unreasonable data in the original mouse coordinate data, including the coordinates that exceed the delay time, and some coordinates that are arranged illegally
-drainPoints: (originalPoints: IOriginalPointData[]) => IOriginalPointData[];
-// Calculate the control points of each point according to the coordinate data
-calControlPoints: (points: IPoint[]) => IControlPoint[];
-// transform mouse coordinate data and control point data into a Bezier curve
-transformPointToBezier: (
-  points: IPoint[],
-  controlPoints: IControlPoint[]
-) => Bezier[];
-// According to the original Bezier curve data, calculate the data structure for drawing
-calDrawingData: (
-  bzArray: Bezier[],
-  totalLength: number
-) => IDrawingBezierData[];
-// According to the calculated drawing data, draw the curve onto the canvas
-drawDrawingBezierData: (
-  ctx: CanvasRenderingContext2D,
-  data: IDrawingBezierData[]
-) => void;
-// A simple entry method to draw the mouse track directly through the processed mouse coordinate data
-drawLaserPen: (ctx: CanvasRenderingContext2D, points: IPoint[]) => void;
-```
-
-# Performance
-
-![flame chart](./docs/assets/performance_1.png)
-
-As can be seen from the flame graph above, the performance of continuously drawing is quite good, and the frame rate is always around 60fps.
-
-![flame chart](./docs/assets/performance_2.png)
-
-The time for each drawing is basically less than 0.5ms.
-
-According to personal experience, JavaScript libraries, like Laser Pen, that do not rely on DOM and BOM tend to have good performance. JavaScript is very efficient in simple pure mathematics and logic processing.
-
-# License
-
-MIT
+[MIT](./LICENSE). This project builds on [SilentTiger/laser-pen at `9694f27`](https://github.com/SilentTiger/laser-pen/tree/9694f27b846cd1baff527be2f9d14fdf86234854), retaining its canvas drawing core and original copyright notice, and adding LAN control and a Windows overlay.

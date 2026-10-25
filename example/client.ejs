@@ -1,110 +1,147 @@
 <!DOCTYPE html>
-<html lang="en">
-
+<html lang="zh-CN">
 <head>
-  <meta content="text/html; charset=utf-8" http-equiv="Content-Type">
-  <meta content="ie=edge" http-equiv="x-ua-compatible">
-  <meta content="width=device-width,initial-scale=1,user-scalable=no" name="viewport">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-touch-fullscreen" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="white">
-  <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
-  <meta build-time="构建于：<%= htmlWebpackPlugin.options.buildTime %>">
-  <title>Laser Pen Demo</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="color-scheme" content="light">
+  <title>局域网激光笔 · 手机控制</title>
   <style>
-    html,
-    body {
-      width: 100%;
-      height: 100%;
-      margin: 0;
-      padding: 0;
-    }
-
-    body {
-      box-sizing: border-box;
-      overflow: overlay;
-      display: flex;
-      flex-direction: column;
-      user-select: none;
-    }
-
-    h1 {
-      font-size: 72px;
-      font-style: italic;
-      text-align: center;
-      margin: 0.5em 0;
-    }
-
-    #status {
-      text-align: center;
-      font-size: 18px;
-      padding: 1em 0;
-      background-color: azure;
-    }
-
-    #tool-box {
-      display: flex;
-      flex-direction: row;
-      padding: 10px;
-      justify-content: space-between;
-    }
-
-    #tool-box>div>div {
-      display: flex;
-      align-items: center;
-      margin-left: 10px;
-    }
-
-    #colorBox {
-      height: 100%;
-      width: 100px;
-      flex-grow: 1;
-      background-color: red;
-    }
-
-    #btnReset {
-      flex-grow: 1;
-      margin: 10px;
-      font-size: 32px;
-      border-radius: 5px;
-    }
-
-    #btnRequestPermission {
-      display: none;
-      position: absolute;
-      border-radius: 5px;
-      top: 5px;
-      left: 5px;
-      bottom: 5px;
-      right: 5px;
-      font-size: 32px;
-    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: #f3f5fa; color: #182033; font: 16px/1.5 system-ui, sans-serif; padding: 20px max(18px, env(safe-area-inset-left)) 28px; }
+    main { max-width: 520px; margin: auto; }
+    h1 { margin: 4px 0; font-size: 27px; }
+    p { margin: 8px 0; }
+    .muted { color: #566178; font-size: 13px; }
+    section { background: white; padding: 16px; border-radius: 16px; margin-top: 14px; box-shadow: 0 3px 18px #1e315008; }
+    #status { color: #175e45; font-weight: 600; }
+    #sensorStatus { min-height: 48px; font-size: 14px; }
+    button, select { font: inherit; border-radius: 10px; padding: 12px; min-height: 48px; border: 1px solid #cbd3e0; background: white; color: inherit; }
+    button { cursor: pointer; touch-action: manipulation; }
+    button:disabled { opacity: .5; cursor: default; }
+    #btnStart { background: #175ee8; border-color: #175ee8; color: white; }
+    .buttons { display: flex; gap: 10px; margin: 12px 0 0; }
+    .buttons > * { flex: 1; min-width: 0; }
+    label { display: block; margin: 12px 0 5px; }
+    input[type=range] { width: 100%; min-height: 36px; accent-color: #175ee8; }
+    select { width: 100%; }
+    .checks { display: flex; gap: 24px; }
+    .checks label { display: flex; align-items: center; gap: 6px; }
+    input[type=checkbox] { width: 20px; height: 20px; accent-color: #175ee8; }
+    .touch-control { padding: 12px; }
+    .touch-heading { display: flex; justify-content: space-between; align-items: center; gap: 12px; font-weight: 600; }
+    .touch-heading > div { min-width: 0; }
+    .touch-heading button { flex-shrink: 0; font-size: 14px; }
+    .touch-heading .muted { margin: 3px 0 0; font-weight: 400; }
+    #touchPosition { flex-shrink: 0; border-radius: 8px; padding: 5px 8px; background: #edf2fa; color: #536782; font-size: 11px; font-weight: 500; font-variant-numeric: tabular-nums; white-space: nowrap; }
+    #btnRequestSensorAuthorization { width: 100%; margin-top: 10px; border-color: #175ee8; background: #e8efff; color: #124ba9; }
+    #touchPad { position: relative; height: 52vh; height: 52dvh; min-height: 280px; max-height: 560px; border: 2px solid #c7d7f1; border-radius: 16px; background: radial-gradient(circle at center, #edf3ff, #f8faff 80%); touch-action: none; user-select: none; -webkit-user-select: none; -webkit-tap-highlight-color: transparent; margin-top: 10px; padding: 0; color: #405879; text-align: center; overflow: hidden; }
+    #touchPad.is-dragging { border-color: #809fcf; }
+    #touchPad > * { pointer-events: none; }
+    .touch-grid { position: absolute; inset: 0; }
+    .touch-grid span { position: absolute; background: #bacce7; opacity: .48; }
+    .touch-grid .vertical { top: 0; bottom: 0; width: 1px; transform: translateX(-50%); }
+    .touch-grid .horizontal { left: 0; right: 0; height: 1px; transform: translateY(-50%); }
+    .touch-grid .quarter-first.vertical { left: 25%; }
+    .touch-grid .quarter-last.vertical { left: 75%; }
+    .touch-grid .quarter-first.horizontal { top: 25%; }
+    .touch-grid .quarter-last.horizontal { top: 75%; }
+    .touch-grid .middle.vertical { left: 50%; width: 2px; }
+    .touch-grid .middle.horizontal { top: 50%; height: 2px; }
+    .touch-grid .middle { background: #809fcf; opacity: .7; }
+    .touch-corner { position: absolute; padding: 3px 6px; border-radius: 6px; background: #f8faffd9; font-size: 11px; color: #71829c; }
+    .touch-corner.top { top: 9px; }
+    .touch-corner.bottom { bottom: 9px; }
+    .touch-corner.left { left: 8px; }
+    .touch-corner.right { right: 8px; }
+    .touch-center { position: absolute; left: 50%; top: 50%; width: 15px; height: 15px; border: 2px solid #809fcf; border-radius: 50%; background: #f3f7ff; transform: translate(-50%, -50%); }
+    .touch-center-label { position: absolute; left: 50%; top: calc(50% + 14px); transform: translateX(-50%); padding: 2px 6px; border-radius: 5px; background: #f3f7ffe6; color: #687f9f; font-size: 11px; white-space: nowrap; }
+    .touch-help { position: absolute; left: 50%; bottom: 43px; transform: translateX(-50%); color: #5c7394; font-size: 13px; white-space: nowrap; }
+    #touchMarker { position: absolute; z-index: 2; width: 36px; height: 36px; border: 2px solid #e34c55; border-radius: 50%; background: #ef535014; box-shadow: 0 0 0 6px #ef535012; transform: translate(-50%, -50%); opacity: .5; }
+    #touchMarker[hidden] { display: none; }
+    #touchMarker::after { content: ''; position: absolute; left: 50%; top: 50%; width: 8px; height: 8px; border-radius: 50%; background: #e34c55; transform: translate(-50%, -50%); }
+    #touchMarker.is-dragging { opacity: 1; box-shadow: 0 0 0 8px #ef53501a; }
+    #sensorControls > summary { font-weight: 600; }
+    @media (max-height: 500px) and (orientation: landscape) { #touchPad { height: 48vh; height: 48dvh; min-height: 200px; } }
+    #rawData, #eventRate { font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
+    #sensorEnvironment { white-space: pre-wrap; overflow-wrap: anywhere; }
+    summary { cursor: pointer; padding: 6px 0; }
   </style>
-  <script src="simplepeer.min.js"></script>
 </head>
-
 <body>
-  <h1>Laser Pen</h1>
-  <div id="status">Connecting to server...</div>
-  <div id="tool-box">
-    <div id="colorBox"></div>
-    <div>
-      <div>
-        <label for="rangeColorRed">Red:</label>
-        <input type="range" id="rangeColorRed" name="volume" min="0" max="255" step="1" value="255">
+  <main>
+    <h1>局域网激光笔</h1>
+    <p id="status" role="status" aria-live="polite">正在连接…</p>
+    <p class="muted">拖动触控区控制电脑红点，划过的轨迹会短暂保留。</p>
+    <section class="touch-control">
+      <div class="touch-heading">
+        <div><span>触摸控制</span></div>
+        <output id="touchPosition" aria-live="off">等待触摸</output>
       </div>
-      <div>
-        <label for="rangeColorGreen">Green:</label>
-        <input type="range" id="rangeColorGreen" name="volume" min="0" max="255" step="1" value="0">
+      <p class="muted">整块区域对应电脑屏幕，中线交点就是屏幕中心。</p>
+      <div id="touchPad" aria-label="激光笔触控区">
+        <div class="touch-grid" aria-hidden="true">
+          <span class="vertical quarter-first"></span><span class="vertical middle"></span><span class="vertical quarter-last"></span>
+          <span class="horizontal quarter-first"></span><span class="horizontal middle"></span><span class="horizontal quarter-last"></span>
+        </div>
+        <span class="touch-corner top left" aria-hidden="true">屏幕左上</span>
+        <span class="touch-corner top right" aria-hidden="true">屏幕右上</span>
+        <span class="touch-corner bottom left" aria-hidden="true">屏幕左下</span>
+        <span class="touch-corner bottom right" aria-hidden="true">屏幕右下</span>
+        <span class="touch-center" aria-hidden="true"></span>
+        <span class="touch-center-label" aria-hidden="true">屏幕中心</span>
+        <span class="touch-help">点击定位 · 拖动移动</span>
+        <span id="touchMarker" aria-hidden="true" hidden></span>
       </div>
-      <div>
-        <label for="rangeColorBlue">Blue:</label>
-        <input type="range" id="rangeColorBlue" name="volume" min="0" max="255" step="1" value="0">
+      <div class="buttons">
+        <button id="btnPrevious">← 上一页</button>
+        <button id="btnNext">下一页 →</button>
       </div>
-    </div>
-  </div>
-  <button id="btnReset">Reset Pos</button>
-  <button id="btnRequestPermission">Request Permission</button>
+    </section>
+    <section>
+      <details id="sensorControls">
+      <summary>陀螺仪与高级设置（可选）</summary>
+      <p id="controlMode" class="muted" role="status" aria-live="polite">触控模式 · 陀螺仪尚未启用</p>
+      <p id="sensorStatus" role="status" aria-live="polite">先让手机上边缘朝向电脑屏幕，点击“启用陀螺仪”，允许运动与方向权限，再校准归零。</p>
+      <button id="btnRequestSensorAuthorization">申请浏览器传感器权限</button>
+      <div class="buttons">
+        <button id="btnStart">启用陀螺仪</button>
+        <button id="btnReset">校准归零</button>
+        <button id="btnRetrySensor">重试传感器授权</button>
+      </div>
+      <p class="muted">在手机调整权限后，可点“重试传感器授权”，无需重新扫码。</p>
+      <label for="rangeSensitivity">灵敏度 <output id="sensitivityValue">1.0×</output></label>
+      <input type="range" id="rangeSensitivity" min="0.4" max="3" step="0.1" value="1">
+      <div class="checks">
+        <label><input id="reverseX" type="checkbox">反转左右</label>
+        <label><input id="reverseY" type="checkbox">反转上下</label>
+      </div>
+      <label for="sensorMode">控制模式</label>
+      <select id="sensorMode">
+        <option value="pointer">自动 · 优先指向，无完整方向时倾斜备用</option>
+        <option value="tilt">倾斜模式 · 不使用水平偏航</option>
+        <option value="gravity">仅 Motion 重力倾斜备用 · 无陀螺仪偏航</option>
+      </select>
+      <p class="muted">建议屏幕朝上、略抬起，手机上边缘朝向屏幕。切换来源或旋转屏幕后自动归零。倾斜备用需要左右倾斜 / 前后俯仰，无法识别原地水平转向；重力备用不是陀螺仪，避免剧烈晃动和接近竖直的姿势。</p>
+      </details>
+    </section>
+    <section>
+      <details>
+        <summary>连接与传感器诊断</summary>
+        <p id="securityStatus" class="muted"></p>
+        <p id="activeSource" class="muted">选中源：尚未启用</p>
+        <p id="selectedData" class="muted">选中源轴值：无有效数据</p>
+        <p id="permissionStatus" class="muted">方向 / 运动权限：尚未请求</p>
+        <p id="relativeStatus" class="muted">Relative：尚未尝试</p>
+        <p id="sensorEnvironment" class="muted">等待权限与接口状态查询</p>
+        <p id="eventRate" class="muted">方向 0 Hz · absolute 0 Hz · Motion 0 Hz · Relative 0 Hz</p>
+        <p id="eventHistory" class="muted">尚未启用监听，累计事件为 0</p>
+        <p id="latency" class="muted">局域网服务器 RTT：等待测量</p>
+        <p id="rawData" class="muted">等待 α / β / γ 数据</p>
+        <p id="motionData" class="muted">等待 Motion 重力 x / y / z 数据</p>
+        <p class="muted">安全上下文为“是”而所有事件仍为 0 时，检查华为浏览器及系统的运动 / 传感器权限；若接口未开放，网页无法强制取得数据。权限、数据源与频率也会同步显示在电脑诊断页。</p>
+      </details>
+      <p class="muted">触控可直接使用，无需启用陀螺仪。翻页时请保持电脑上的 Canva 演示窗口在前台。</p>
+    </section>
+  </main>
 </body>
-
 </html>

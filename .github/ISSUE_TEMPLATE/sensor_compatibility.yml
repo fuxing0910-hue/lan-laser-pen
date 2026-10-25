@@ -1,0 +1,45 @@
+name: Phone compatibility / 手机兼容性
+description: Share a working device or a sensor permission/data issue.
+title: "[Compatibility] "
+body:
+  - type: markdown
+    attributes:
+      value: "Working-device reports help too. Share only the requested fields; do not attach raw logs, pairing links, IPs, or certificates. / 欢迎反馈可用机型，请仅填写必要信息。"
+  - type: input
+    id: model
+    attributes:
+      label: Phone model / 手机型号
+    validations:
+      required: true
+  - type: input
+    id: software
+    attributes:
+      label: OS and browser versions / 系统与浏览器版本
+    validations:
+      required: true
+  - type: dropdown
+    id: touch
+    attributes:
+      label: Touch control / 触控控制
+      options:
+        - Works / 可用
+        - Does not work / 不可用
+        - Not tested / 未测试
+    validations:
+      required: true
+  - type: dropdown
+    id: motion
+    attributes:
+      label: Motion control / 传感器控制
+      options:
+        - Works / 可用
+        - No data / 无数据
+        - Permission error / 权限错误
+        - Not tested / 未测试
+    validations:
+      required: true
+  - type: textarea
+    id: diagnostic
+    attributes:
+      label: Sensor status / 传感器状态
+      description: Secure context, permission states, event/valid Hz, last request result, whether a native prompt appeared, and behavior after calibration. Remove identifying details.

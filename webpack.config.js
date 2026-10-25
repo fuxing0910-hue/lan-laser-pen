@@ -1,7 +1,6 @@
 const path = require('path')
 const os = require('os')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CopyPlugin = require('copy-webpack-plugin')
 const { CleanWebpackPlugin } = require('clean-webpack-plugin')
 
 console.log(`run on ${os.cpus().length} CPUs`)
@@ -64,11 +63,6 @@ if (process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'demo') {
   webpackConfig.cache = false
   delete webpackConfig.devtool
   webpackConfig.plugins.unshift(new CleanWebpackPlugin())
-  if (process.env.NODE_ENV === 'demo') {
-    webpackConfig.plugins.push(
-      new CopyPlugin({ patterns: [{ from: 'example/simplepeer.min.js', to: 'simplepeer.min.js' }] }),
-    )
-  }
 }
 
 if (process.env.NODE_ENV === 'production') {
