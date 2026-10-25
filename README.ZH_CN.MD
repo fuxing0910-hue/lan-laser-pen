@@ -2,6 +2,8 @@
 
 [English](./README.MD)
 
+[![CI](https://github.com/fuxing0910-hue/lan-laser-pen/actions/workflows/ci.yml/badge.svg)](https://github.com/fuxing0910-hue/lan-laser-pen/actions/workflows/ci.yml) · [下载 v0.1.0](https://github.com/fuxing0910-hue/lan-laser-pen/releases/tag/v0.1.0) · [MIT 许可](./LICENSE)
+
 **让手机通过局域网，控制 Windows 演示画面上的激光红点。**
 
 电脑生成二维码，手机扫码后拖动触控区，红点就能叠加在幻灯片上。浏览器允许访问传感器时，还可以使用陀螺仪控制。激光笔本身无需云服务、账号或付费。
@@ -20,6 +22,8 @@
 <img src="./docs/assets/mobile-control.png" alt="带中位线、位置标记和翻页按钮的手机触控界面" width="360">
 
 ## 快速开始
+
+也可从 [Releases](https://github.com/fuxing0910-hue/lan-laser-pen/releases/tag/v0.1.0) 下载 **Windows ZIP**，解压后在该目录运行下面的启动命令。下载包含预构建网页，仍需 Node.js、首次安装依赖和配置本地证书信任；不包含 Node.js 或任何证书。
 
 准备一台 **Windows 电脑**、Git、**Node.js 22 或更新版本**，以及连接同一局域网的手机。安装依赖和首次下载 mkcert 需要联网；启动器使用 Windows PowerShell，跨应用透明叠加仅提供 Windows 实现。
 

@@ -2,6 +2,8 @@
 
 [简体中文](./README.ZH_CN.MD)
 
+[![CI](https://github.com/fuxing0910-hue/lan-laser-pen/actions/workflows/ci.yml/badge.svg)](https://github.com/fuxing0910-hue/lan-laser-pen/actions/workflows/ci.yml) · [Download v0.1.0](https://github.com/fuxing0910-hue/lan-laser-pen/releases/tag/v0.1.0) · [MIT](./LICENSE)
+
 **Turn your phone into a presentation pointer for your Windows desktop, over your local network.**
 
 Scan a QR code, drag the phone touchpad, and move a red laser dot above your slides. Motion control is available when the phone browser permits sensor access. The pointer itself needs no cloud service, account, or payment.
@@ -20,6 +22,8 @@ Scan a QR code, drag the phone touchpad, and move a red laser dot above your sli
 <img src="./docs/assets/mobile-control.png" alt="Phone touchpad with center guides, position marker, and slide buttons" width="360">
 
 ## Quick start
+
+Prefer a download? Get the **Windows ZIP** from [Releases](https://github.com/fuxing0910-hue/lan-laser-pen/releases/tag/v0.1.0), extract it, and run the same launcher command below from the extracted folder. It includes prebuilt web pages, but still requires Node.js, first-use dependency installation, and local certificate trust setup. It does not bundle Node.js or any certificates.
 
 You need a **Windows desktop**, Git, **Node.js 22 or newer**, and a phone on the same local network. Dependency installation and the first mkcert download require internet access. The launcher uses Windows PowerShell; the cross-application overlay is Windows only.
 
